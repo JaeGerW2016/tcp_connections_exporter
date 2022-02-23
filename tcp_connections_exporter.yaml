@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: tcp_connections_exporter
+  labels:
+    app: tcp_connections_exporter
+spec:
+  selector:
+    matchLabels:
+      app: tcp_connections_exporter
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: "100%"
+  template:
+    metadata:
+      name: tcp_connections_exporter
+      labels:
+        app: tcp_connections_exporter
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '9371'
+    spec:
+      hostNetwork: true
+      tolerations:
+        - operator: Exists
+      containers:
+        - name: tcp_connections_exporter
+          image: 314315960/tcp_connections_exporter:v1.0
+          imagePullPolicy: Always
+          ports:
+            - name: metrics
+              containerPort: 9319
+              hostPort: 9319
+              protocol: TCP
+          securityContext:
+            privileged: true
+          terminationMessagePolicy: FallbackToLogsOnError
+          resources:
+            requests:
+              cpu: 10m
+              memory: 8Mi
+            limits:
+              cpu: 10m
+              memory: 15Mi
